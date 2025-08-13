@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.user.core.ldap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -29,9 +29,9 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.dateAndTimePattern;
 
@@ -48,7 +48,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
     /**
      * Sets up the test environment before each test.
      */
-    @Before
+    @BeforeMethod
     public void setUp() throws Exception {
 
         MockitoAnnotations.openMocks(this);
@@ -183,8 +183,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
         } catch (Exception e) {
             // Expected - 2-digit timezone not supported by current regex.
             Throwable cause = e.getCause();
-            assertTrue("Should throw UserStoreException for 2-digit timezone",
-                    cause instanceof UserStoreException);
+            assertTrue(cause instanceof UserStoreException,
+                    "Should throw UserStoreException for 2-digit timezone");
         }
     }
 
@@ -210,10 +210,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
         } catch (Exception e) {
             // Check if the root cause is UserStoreException.
             Throwable cause = e.getCause();
-            assertTrue("Should throw UserStoreException for unsupported format",
-                    cause instanceof UserStoreException);
-            assertTrue("Error message should mention unsupported timestamp format",
-                    cause.getMessage().contains("Unsupported LDAP timestamp format"));
+            assertTrue(cause instanceof UserStoreException,
+                    "Should throw UserStoreException for unsupported format");
+            assertTrue(cause.getMessage().contains("Unsupported LDAP timestamp format"),
+                    "Error message should mention unsupported timestamp format");
         }
     }
 
@@ -239,10 +239,10 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
         } catch (Exception e) {
             // Check if the root cause is UserStoreException.
             Throwable cause = e.getCause();
-            assertTrue("Should throw UserStoreException for invalid custom pattern format",
-                    cause instanceof UserStoreException);
-            assertTrue("Error message should mention invalid timestamp format",
-                    cause.getMessage().contains("Invalid timestamp format"));
+            assertTrue(cause instanceof UserStoreException,
+                    "Should throw UserStoreException for invalid custom pattern format");
+            assertTrue(cause.getMessage().contains("Invalid timestamp format"),
+                    "Error message should mention invalid timestamp format");
         }
     }
 }
