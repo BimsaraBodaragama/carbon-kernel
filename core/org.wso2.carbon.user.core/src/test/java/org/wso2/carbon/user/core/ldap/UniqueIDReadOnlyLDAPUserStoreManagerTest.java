@@ -53,11 +53,6 @@ public class UniqueIDReadOnlyLDAPUserStoreManagerTest {
 
         MockitoAnnotations.openMocks(this);
 
-        // Set up system properties required for Carbon framework.
-        System.setProperty("carbon.home", System.getProperty("java.io.tmpdir"));
-        System.setProperty("carbon.config.dir.path", System.getProperty("java.io.tmpdir"));
-        System.setProperty("carbon.repository.dir.path", System.getProperty("java.io.tmpdir"));
-
         // Create the user store manager instance under test.
         userStoreManager = new UniqueIDReadOnlyLDAPUserStoreManager();
 
