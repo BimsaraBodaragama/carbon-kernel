@@ -3125,6 +3125,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
         }
 
+        // Remove null elements before sorting.
+        filteredUserList.removeIf(Objects::isNull);
         Collections.sort(filteredUserList);
         return filteredUserList.toArray(new String[0]);
     }
