@@ -19,6 +19,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +41,12 @@ public class LoggingFileHandlerTest {
     public void setUp() throws Exception {
         // Ensure test log directory exists and use a proper FileHandler pattern rather than a log message format string.
         String logsDir = "target/test-logs";
-        java.io.File dir = new java.io.File(logsDir);
+        File dir = new File(logsDir);
         if (!dir.exists()) {
             // Ignoring the result; tests can proceed if concurrent creation happens.
             dir.mkdirs();
         }
-        String pattern = logsDir + java.io.File.separator + "bootstrap-test%g.log";
+        String pattern = logsDir + File.separator + "bootstrap-test%g.log";
         loggingFileHandlers.add(new LoggingFileHandler());
         loggingFileHandlers.add(new LoggingFileHandler(pattern));
         loggingFileHandlers.add(new LoggingFileHandler(pattern, true));
