@@ -939,4 +939,10 @@
         </OpenTelemetry>
     </Tracing>
 
+    <DeniedAdminServices>
+        {% for service in admin_service.deny_list %}
+        <Service>{{service}}</Service>
+        {% endfor %}
+    </DeniedAdminServices>
+
 </Server>

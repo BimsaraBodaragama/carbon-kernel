@@ -1,17 +1,17 @@
-/* 
+/*
  * Copyright 2005,2006 WSO2, Inc. http://www.wso2.org
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.base;
 
@@ -41,9 +41,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import javax.xml.namespace.QName;
@@ -97,6 +99,8 @@ public class ServerConfiguration implements ServerConfigurationService {
 			.getLog(ServerConfigurationService.class);
 
 	private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
+
+	private final Set<String> deniedAdminServices = new HashSet<>();
 	private boolean isInitialized;
 	private boolean isLoadedConfigurationPreserved = false;
 	private String documentXML;
@@ -109,7 +113,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * Method to retrieve an instance of the server configuration.
-	 * 
+	 *
 	 * @return instance of the server configuration
 	 */
 	public static ServerConfiguration getInstance() {
@@ -126,10 +130,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * This initializes the server configuration. This method should only be
 	 * called once, for successive calls, it will be checked.
-	 * 
+	 *
 	 * @param xmlInputStream
 	 *            the server configuration file stream.
-	 * 
+	 *
 	 * @throws org.wso2.carbon.base.ServerConfigurationException
 	 *             if the operation failed.
 	 */
@@ -165,10 +169,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * This initializes the server configuration. This method should only be
 	 * called once, for successive calls, it will be checked.
-	 * 
+	 *
 	 * @param configurationXMLLocation
 	 *            the location of the server configuration file (carbon.xml).
-	 * 
+	 *
 	 * @throws ServerConfigurationException
 	 *             if the operation failed.
 	 */
@@ -232,10 +236,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * Method to forcibly initialize the server configuration. If there is any
 	 * configuration loaded, it will not be preserved.
-	 * 
+	 *
 	 * @param xmlInputStream
 	 *            the server configuration file stream.
-	 * 
+	 *
 	 * @throws ServerConfigurationException
 	 *             if the operation failed.
 	 */
@@ -248,10 +252,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * Method to forcibly initialize the server configuration. If there is any
 	 * configuration loaded, it will not be preserved.
-	 * 
+	 *
 	 * @param configurationXMLLocation
 	 *            the location of the server configuration file (carbon.xml).
-	 * 
+	 *
 	 * @throws ServerConfigurationException
 	 *             if the operation failed.
 	 */
@@ -263,12 +267,12 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * Method to forcibly initialize the server configuration.
-	 * 
+	 *
 	 * @param configurationXMLLocation
 	 *            the location of the server configuration file (carbon.xml).
 	 * @param isLoadedConfigurationPreserved
 	 *            whether the currently loaded configuration is preserved.
-	 * 
+	 *
 	 * @throws ServerConfigurationException
 	 *             if the operation failed.
 	 */
@@ -285,6 +289,19 @@ public class ServerConfiguration implements ServerConfigurationService {
 		for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
 			OMElement element = (OMElement) childElements.next();
 			nameStack.push(element.getLocalName());
+			if ("DeniedAdminServices".equals(element.getLocalName())){
+				for (Iterator denyServices = element.getChildElements(); denyServices.hasNext(); ) {
+					OMElement denyService = (OMElement) denyServices.next();
+					if ("Service".equals(denyService.getLocalName()) && elementHasText(denyService)) {
+						deniedAdminServices.add(denyService.getText().trim());
+					}
+				}
+				String key = getKey(nameStack);
+				String value = String.join(",", deniedAdminServices);
+				addToConfiguration(key, value);
+				nameStack.pop();
+				continue;
+			}
 			if (elementHasText(element)) {
 				String key = getKey(nameStack);
 				String value;
@@ -356,7 +373,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * Method to a given key, value pair into the configuration.
-	 * 
+	 *
 	 * @param key
 	 *            the key to add
 	 * @param value
@@ -386,7 +403,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * overrides the configuration property instead of adding the value to the
 	 * list
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -429,10 +446,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	/**
 	 * There can be multiple objects with the same key. This will return the
 	 * first String from them
-	 * 
+	 *
 	 * @param key
 	 *            the search key
-	 * 
+	 *
 	 * @return value corresponding to the given key
 	 */
 	@Override
@@ -446,10 +463,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * There can be multiple object corresponding to the same object.
-	 * 
+	 *
 	 * @param key
 	 *            the search key
-	 * 
+	 *
 	 * @return the properties corresponding to the <code>key</code>
 	 */
 	@Override
@@ -463,7 +480,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * Method to retrieve the Configuration as an XML Document.
-	 * 
+	 *
 	 * @return DOM element containing server configuration.
 	 */
 	@Override
@@ -488,10 +505,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	/**
 	 * Converts a given OMElement to a DOM Element.
-	 * 
+	 *
 	 * @param element
 	 *            the OM element to be converted to DOM.
-	 * 
+	 *
 	 * @return Returns Element.
 	 * @throws Exception
 	 *             if the operation failed.
@@ -538,5 +555,9 @@ public class ServerConfiguration implements ServerConfigurationService {
 
 	protected String getProtectedValue(String key) {
 		return secretResolver.resolve("Carbon." + key);
+	}
+
+	public Set<String> getDeniedAdminServices() {
+		return deniedAdminServices;
 	}
 }
