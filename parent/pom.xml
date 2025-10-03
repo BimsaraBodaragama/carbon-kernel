@@ -647,12 +647,14 @@
         <maven.spotbugsplugin.version>3.1.10</maven.spotbugsplugin.version>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.spotbugs.dependency.version>3.1.11</maven.spotbugs.dependency.version>
-        <version.jinjava>2.6.0</version.jinjava>
+        <version.jinjava>2.7.5</version.jinjava>
+        <version.hubspot.immutables>1.11.2</version.hubspot.immutables>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
         <version.jackson>2.16.1</version.jackson>
         <version.jackson.databind>2.16.1</version.jackson.databind>
         <version.jackson.dataformat>2.16.1</version.jackson.dataformat>
+        <version.jackson.datatype>2.17.3</version.jackson.datatype>
         <version.jsoup>1.15.3</version.jsoup>
         <!--Please make sure to update the Guava and Guava FailureAccess versions in the carbon-registry repository as
         well.-->
@@ -1838,6 +1840,16 @@
                 <groupId>com.hubspot.jinjava</groupId>
                 <artifactId>jinjava</artifactId>
                 <version>${version.jinjava}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${version.jackson.datatype}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot.immutables</groupId>
+                <artifactId>immutables-exceptions</artifactId>
+                <version>${version.hubspot.immutables}</version>
             </dependency>
             <dependency>
                 <groupId>net.consensys.cava</groupId>
