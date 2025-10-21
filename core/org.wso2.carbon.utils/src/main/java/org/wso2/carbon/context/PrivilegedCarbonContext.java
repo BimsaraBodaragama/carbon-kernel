@@ -476,4 +476,25 @@ public class PrivilegedCarbonContext extends CarbonContext {
 
         return getCarbonContextDataHolder().getOperationScopeValidationContext();
     }
+
+    /**
+     * Set the accessing organization id.
+     *
+     * @param accessingOrganizationId Accessing organization id.
+     */
+    public void setAccessingOrganizationId(String accessingOrganizationId) {
+
+        getCarbonContextDataHolder().setAccessingOrganizationId(accessingOrganizationId);
+    }
+
+    /**
+     * Get the accessing organization id.
+     * This represents the organization id of the accessing organization of the current request.
+     *
+     * @return Accessing organization id.
+     */
+    public String getAccessingOrganizationId() {
+
+        return getCarbonContextDataHolder().getAccessingOrganizationId();
+    }
 }
