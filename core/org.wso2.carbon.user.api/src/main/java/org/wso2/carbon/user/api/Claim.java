@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.api;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Represents a claim that is associated with an entity usually a user. Claims
@@ -94,7 +95,15 @@ public class Claim implements Serializable {
      */
     private boolean multiValued;
 
-    private boolean userStorePersistenceEnabled;
+    /**
+     * Indicates whether the claim is managed in the user store.
+     */
+    private Boolean managedInUserStore;
+
+    /**
+     * Set of user stores that exclude this claim.
+     */
+    private Set<String> excludedUserStores;
 
     public String getClaimUri() {
         return claimUri;
@@ -195,20 +204,38 @@ public class Claim implements Serializable {
     }
 
     /**
-     * Indicates whether the user store persistence is enabled for this claim.
+     * Indicates whether the claim is managed in the user store.
      * @return true if enabled, false otherwise.
      */
-    public boolean isUserStorePersistenceEnabled() {
+    public Boolean isManagedInUserStore() {
 
-        return userStorePersistenceEnabled;
+        return managedInUserStore;
     }
 
     /**
-     * Sets the user store persistence enabled status for this claim.
-     * @param userStorePersistenceEnabled true to enable, false to disable.
+     * Sets the claim to be managed in the user store.
+     * @param managedInUserStore true to enable, false to disable.
      */
-    public void setUserStorePersistenceEnabled(boolean userStorePersistenceEnabled) {
+    public void setManagedInUserStore(Boolean managedInUserStore) {
 
-        this.userStorePersistenceEnabled = userStorePersistenceEnabled;
+        this.managedInUserStore = managedInUserStore;
+    }
+
+    /**
+     * Get the set of user stores that exclude this claim.
+     * @return Set of excluded user stores.
+     */
+    public Set<String> getExcludedUserStores() {
+
+        return excludedUserStores;
+    }
+
+    /**
+     * Set the user stores that exclude this claim.
+     * @param excludedUserStores Set of excluded user stores.
+     */
+    public void setExcludedUserStores(Set<String> excludedUserStores) {
+
+        this.excludedUserStores = excludedUserStores;
     }
 }
