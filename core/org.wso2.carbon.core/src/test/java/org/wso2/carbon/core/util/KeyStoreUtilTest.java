@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.RegistryResources;
@@ -55,6 +56,8 @@ public class KeyStoreUtilTest {
     public void setUp() throws Exception {
 
         initMocks(this);
+        System.setProperty(CarbonBaseConstants.CARBON_HOME,
+                Paths.get(System.getProperty("user.dir"), "src", "test", "resources").toString());
     }
 
     @DataProvider(name = "PrimaryStoreDataProvider")
@@ -166,6 +169,8 @@ public class KeyStoreUtilTest {
             OMElement keyStoreConfigElement = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, serverConfiguration);
             assertEquals(KeyStoreUtil.getCustomKeyStoreConfig(keyStoreConfigElement, configName), expectedValue);
         } catch (Exception e) {
+            System.out.println("Exception occurred: " + e.getMessage());
+            e.printStackTrace();
             fail();
         }
     }

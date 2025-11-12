@@ -6,7 +6,6 @@ import javax.servlet.ServletContextListener;
 import org.apache.tiles.factory.BasicTilesContainerFactory;
 import org.apache.tiles.request.ApplicationContext;
 import org.apache.tiles.request.servlet.ServletApplicationContext;
-import org.apache.tiles.request.servlet.wildcard.WildcardServletApplicationContext;
 import org.apache.tiles.startup.TilesInitializer;
 import org.apache.tiles.startup.AbstractTilesInitializer;
 import org.apache.tiles.TilesContainer;

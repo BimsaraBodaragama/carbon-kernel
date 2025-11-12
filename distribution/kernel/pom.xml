@@ -169,7 +169,6 @@
             <groupId>org.jvnet.staxex</groupId>
             <artifactId>stax-ex</artifactId>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>

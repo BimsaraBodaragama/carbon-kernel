@@ -212,6 +212,14 @@
             <artifactId>bcpg-jdk18on</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcutil-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.registry</artifactId>
         </dependency>
@@ -375,6 +383,8 @@
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.frameworkadmin.equinox</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.preferences</bundleDef>
                                 <bundleDef>org.osgi:org.osgi.service.prefs</bundleDef>
+                                <bundleDef>org.bouncycastle:bcutil-jdk18on</bundleDef>
+                                <bundleDef>org.bouncycastle:bcprov-jdk18on</bundleDef>
                                 <bundleDef>org.bouncycastle:bcpg-jdk18on</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.registry</bundleDef>
                                 <bundleDef>org.eclipse.platform:org.eclipse.equinox.security</bundleDef>
