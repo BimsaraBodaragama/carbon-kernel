@@ -46,7 +46,8 @@ public class URIMethodBlockFilter implements Filter {
 
     private static Log log = LogFactory.getLog(URIMethodBlockFilter.class);
 
-    private static final Pattern TENANT_PREFIX_PATTERN = Pattern.compile("^/t/[^/]+");
+    private static final Pattern TENANT_PREFIX_PATTERN = Pattern.compile("^/{1,}t/{1,}[^/]+");
+    private static final Pattern MULTI_SLASH = Pattern.compile("^/{2,}");
     private static final String ADMIN_SERVICE_PATH_PREFIX = "/services/";
     private static final String HTTP_METHOD_GET = "GET";
     private static final String WSDL_QUERY_PARAM = "wsdl";
@@ -118,19 +119,19 @@ public class URIMethodBlockFilter implements Filter {
             return;
         }
 
-        // Allow the GET requests for WSDL retrieval.
-        Map<String, String[]> parameterMap = httpReq.getParameterMap();
-        if (parameterMap.size() == 1 &&
-                (parameterMap.containsKey(WSDL_QUERY_PARAM) || parameterMap.containsKey(WSDL2_QUERY_PARAM))) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            return;
-        }
-
         String requestURI = httpReq.getRequestURI();
         String normalizedURI = getNormalizedURI(requestURI);
 
         // Validate the service url prefix since tenanted paths cannot be handled from filter mappings in web.xml.
         if (!normalizedURI.startsWith(ADMIN_SERVICE_PATH_PREFIX)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        // Allow the GET requests for WSDL retrieval.
+        Map<String, String[]> parameterMap = httpReq.getParameterMap();
+        if (parameterMap.size() == 1 &&
+                (parameterMap.containsKey(WSDL_QUERY_PARAM) || parameterMap.containsKey(WSDL2_QUERY_PARAM))) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -155,7 +156,8 @@ public class URIMethodBlockFilter implements Filter {
      */
     private String getNormalizedURI(String requestURI) {
 
-        return TENANT_PREFIX_PATTERN.matcher(requestURI).replaceFirst(StringUtils.EMPTY);
+        String noTenantPath = TENANT_PREFIX_PATTERN.matcher(requestURI).replaceFirst(StringUtils.EMPTY);
+        return MULTI_SLASH.matcher(noTenantPath).replaceFirst("/");
     }
 
     /**
