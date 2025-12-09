@@ -150,6 +150,7 @@ public final class CarbonContextDataHolder {
     private String applicationName;
     private String applicationResidentOrganizationId;
     private OperationScopeValidationContext operationScopeValidationContext;
+    private String accessingOrganizationId;
 
     private Map<String, Object> properties;
 
@@ -1554,6 +1555,28 @@ public final class CarbonContextDataHolder {
             OperationScopeValidationContext operationScopeValidationContext) {
 
         this.operationScopeValidationContext = operationScopeValidationContext;
+    }
+
+    /**
+     * Get the accessing organization id.
+     * This represents the organization id of the accessing organization of the current request.
+     *
+     * @return Accessing organization id.
+     */
+    public String getAccessingOrganizationId() {
+
+        return accessingOrganizationId;
+    }
+
+    /**
+     * Set the accessing organization id.
+     *
+     * @param accessingOrganizationId Accessing organization id.
+     */
+    public void setAccessingOrganizationId(String accessingOrganizationId) {
+
+        CarbonUtils.checkSecurity();
+        this.accessingOrganizationId = accessingOrganizationId;
     }
 
     /**
