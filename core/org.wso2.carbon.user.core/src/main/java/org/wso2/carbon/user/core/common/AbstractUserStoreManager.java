@@ -16844,7 +16844,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         getExpressionConditions(duplicateCondition, expressionConditions);
 
         // Check whether the request has IdentityClaims in filters.
-        mapAttributesToLocalIdentityClaims(expressionConditions, domain);
+        mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
         boolean identityClaimsExistsInInitialCondition = containsIdentityClaims(expressionConditions);
 
         if (identityClaimsExistsInInitialCondition) {
@@ -17002,7 +17002,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         validation in the next iteration of flow when the domain name is not in query params.*/
         Condition duplicateCondition = getDuplicateCondition(condition);
         getExpressionConditions(duplicateCondition, expressionConditions);
-        mapAttributesToLocalIdentityClaims(expressionConditions, domain);
+        mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
 
         /* *****************************************************
          * Logic to Filter Users Based on Identity & Non Identity Claims
@@ -17122,7 +17122,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         getExpressionConditions(duplicateCondition, expressionConditions);
 
         // Check whether the request has IdentityClaims in filters.
-        mapAttributesToLocalIdentityClaims(expressionConditions, domain);
+        mapAttributesToLocalIdentityClaims(expressionConditions, domain, secondaryUserStoreManager);
         boolean identityClaimsExistsInInitialCondition = countIdentityClaims(expressionConditions) > 0;
 
         if (identityClaimsExistsInInitialCondition) {
@@ -17410,7 +17410,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @throws UserStoreException
      */
     private void mapAttributesToLocalIdentityClaims(List<ExpressionCondition> expressionConditions,
-                                                    String userStoreDomain) throws UserStoreException {
+                                                    String userStoreDomain, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         List<org.wso2.carbon.user.api.ClaimMapping> claimMapping;
         try {
@@ -17433,7 +17434,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             }
 
             // Check if the claim is an identity store managed claim and map the attribute name to claim URI.
-            if (isIdentityStoreManagedClaim(mappedClaim.getClaim(), userStoreDomain, null)) {
+            if (isIdentityStoreManagedClaim(mappedClaim.getClaim(), userStoreDomain, userStoreManager)) {
                 expressionCondition.setAttributeName(mappedClaim.getClaim().getClaimUri());
                 if (log.isDebugEnabled()) {
                     log.debug("Obtained the ClaimURI " + mappedClaim.getClaim().getClaimUri() +
