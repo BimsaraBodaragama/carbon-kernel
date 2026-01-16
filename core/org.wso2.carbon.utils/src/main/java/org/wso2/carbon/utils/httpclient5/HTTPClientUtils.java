@@ -22,9 +22,8 @@ import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.wso2.carbon.utils.Utils;
 
@@ -71,9 +70,10 @@ public class HTTPClientUtils {
             httpClientBuilder.setConnectionManager(
                 PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
                     .setTlsSocketStrategy(
-                        (TlsSocketStrategy) ClientTlsStrategyBuilder.create()
-                            .setHostnameVerifier(hostnameVerifier)
-                            .build()
+                        new CustomTlsStrategy(
+                                SSLContexts.createSystemDefault(),
+                                hostnameVerifier
+                        )
                     )
                     .setDefaultConnectionConfig(
                         ConnectionConfig.custom().setConnectTimeout(Timeout.ofMilliseconds(CONNECTION_TIMEOUT))
