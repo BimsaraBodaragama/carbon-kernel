@@ -24,6 +24,7 @@ import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.util.Objects;
 
 /**
  * Custom TLS strategy that disables Java's built-in hostname verification
@@ -37,9 +38,13 @@ import javax.net.ssl.SSLContext;
 public class CustomTlsStrategy extends DefaultClientTlsStrategy {
 
     public CustomTlsStrategy(SSLContext sslContext, HostnameVerifier hostnameVerifier) {
-        // Use CLIENT policy which relies ONLY on the provided hostname verifier
-        // and disables Java's built-in endpoint identification algorithm.
-        super(sslContext, null, null, SSLBufferMode.STATIC, 
-              HostnameVerificationPolicy.CLIENT, hostnameVerifier);
+        super(
+            Objects.requireNonNull(sslContext, "SSLContext cannot be null"),
+            null,  // SupportedProtocols - null to use system default TLS protocols.
+            null,  // SupportedCipherSuites - null to use system default cipher suites from SSLContext.
+            SSLBufferMode.STATIC,
+            HostnameVerificationPolicy.CLIENT,
+            Objects.requireNonNull(hostnameVerifier, "HostnameVerifier cannot be null.")
+        );
     }
 }

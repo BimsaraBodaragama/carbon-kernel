@@ -18,16 +18,20 @@
 
 package org.wso2.carbon.utils.httpclient5;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.SSLInitializationException;
 import org.apache.hc.core5.util.Timeout;
 import org.wso2.carbon.utils.Utils;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import static org.wso2.carbon.CarbonConstants.HOST_NAME_VERIFIER;
 import static org.wso2.carbon.CarbonConstants.ALLOW_ALL;
@@ -38,6 +42,7 @@ import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
  */
 public class HTTPClientUtils {
 
+    private static final Log log = LogFactory.getLog(HTTPClientUtils.class);
     private static final int CONNECTION_TIMEOUT;
     private static final int SOCKET_TIMEOUT;
 
@@ -67,20 +72,23 @@ public class HTTPClientUtils {
         }
 
         if (hostnameVerifier != null) {
-            httpClientBuilder.setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
-                    .setTlsSocketStrategy(
-                        new CustomTlsStrategy(
-                                SSLContexts.createSystemDefault(),
-                                hostnameVerifier
+            try {
+                SSLContext sslContext = SSLContexts.createSystemDefault();
+                httpClientBuilder.setConnectionManager(
+                    PoolingHttpClientConnectionManagerBuilder.create().useSystemProperties()
+                        .setTlsSocketStrategy(
+                            new CustomTlsStrategy(sslContext, hostnameVerifier)
                         )
-                    )
-                    .setDefaultConnectionConfig(
-                        ConnectionConfig.custom().setConnectTimeout(Timeout.ofMilliseconds(CONNECTION_TIMEOUT))
-                            .build()
-                    )
-                    .build()
-            );
+                        .setDefaultConnectionConfig(
+                            ConnectionConfig.custom().setConnectTimeout(Timeout.ofMilliseconds(CONNECTION_TIMEOUT))
+                                .build()
+                        )
+                        .build()
+                );
+            } catch (SSLInitializationException e) {
+                log.error("Failed to create system default SSL context. Continuing without custom hostname verifier."
+                        , e);
+            }
         }
 
         RequestConfig.Builder config = RequestConfig.custom()
