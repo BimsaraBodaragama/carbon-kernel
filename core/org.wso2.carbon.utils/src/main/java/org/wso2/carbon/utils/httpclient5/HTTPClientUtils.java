@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,7 +42,7 @@ import static org.wso2.carbon.CarbonConstants.DEFAULT_AND_LOCALHOST;
  */
 public class HTTPClientUtils {
 
-    private static final Log log = LogFactory.getLog(HTTPClientUtils.class);
+    private static final Log LOG = LogFactory.getLog(HTTPClientUtils.class);
     private static final int CONNECTION_TIMEOUT;
     private static final int SOCKET_TIMEOUT;
 
@@ -86,7 +86,7 @@ public class HTTPClientUtils {
                         .build()
                 );
             } catch (SSLInitializationException e) {
-                log.error("Failed to create system default SSL context. Continuing without custom hostname verifier."
+                LOG.error("Failed to create system default SSL context. Continuing without custom hostname verifier."
                         , e);
             }
         }
