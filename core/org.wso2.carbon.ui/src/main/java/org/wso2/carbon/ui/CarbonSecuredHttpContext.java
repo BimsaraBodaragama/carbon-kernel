@@ -277,9 +277,9 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         if (request.getSession().isNew()) {
             if (skipLoginPage) {
                 response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath,
-                        "/admin/login_action.jsp", request));
+                        "/carbon/admin/login_action.jsp", request));
             } else {
-                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/admin/login.jsp",
+                response.sendRedirect(CarbonUIUtil.resolveAdminConsoleBaseURL(contextPath, "/carbon/admin/login.jsp",
                         request));
 
             }
@@ -458,7 +458,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         } else {
             String defaultManagementUIPath = getDefaultManagementUIPath();
             if (StringUtils.isBlank(defaultManagementUIPath)) {
-                defaultManagementUIPath = "carbon";
+                defaultManagementUIPath = "/carbon/admin/index.jsp";
             }
             response.sendRedirect(defaultManagementUIPath);
         }

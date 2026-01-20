@@ -420,6 +420,7 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         }
         try {
             if (event == ServiceEvent.REGISTERED) {
+                //TODO change this to use whiteboard pattern
                 Servlet adaptedJspServlet = new ContextPathServletAdaptor(servlet, urlPattern);
                 if (associatedFilter == null) {
                     httpService.registerServlet(urlPattern, adaptedJspServlet, params, httpContext);

@@ -53,7 +53,6 @@ import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.ui.ContextPathServletAdaptor;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
 import org.wso2.carbon.ui.TextJavascriptHandler;
 import org.wso2.carbon.ui.TilesJspServlet;
@@ -230,8 +229,6 @@ public class CarbonUIServiceComponent {
         context.registerService(ContentHandler.class.getName(), new TextJavascriptHandler(),
                                 properties3);
 
-        final HttpService httpService = getHttpService();
-
         String webContext = "carbon"; // The subcontext for the Carbon Mgt Console
 
         String serverURL = CarbonUIUtil.getServerURL(serverConfig);
@@ -252,32 +249,28 @@ public class CarbonUIServiceComponent {
         HttpContext commonContext =
                 new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
 
-        //Registering filedownload servlet
-        Servlet fileDownloadServlet = new ContextPathServletAdaptor(new FileDownloadServlet(
-                context, getConfigurationContextService()), "/filedownload");
-//        Dictionary<String, Object> fileDownloadServletProperties = new Hashtable<>();
-//        fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/filedownload");
-//        context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
-        httpService.registerServlet("/filedownload", fileDownloadServlet, null, commonContext);
+        // Register file download servlet using HTTP Whiteboard pattern
+        Servlet fileDownloadServlet = new FileDownloadServlet(context, getConfigurationContextService());
+        Dictionary<String, String> fileDownloadServletProperties = new Hashtable<>();
+        fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/filedownload/*");
+        fileDownloadServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.INDEX_PAGE_URL, indexPageURL);
 
-        //Registering fileupload servlet
+        // Register file upload servlet using HTTP Whiteboard pattern
         Servlet fileUploadServlet;
         if (isLocalTransportMode) {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, serverConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(context, serverConfigContext, webContext);
         } else {
-            fileUploadServlet = new ContextPathServletAdaptor(new FileUploadServlet(
-                    context, clientConfigContext, webContext), "/fileupload");
+            fileUploadServlet = new FileUploadServlet(context, clientConfigContext, webContext);
         }
-
-        httpService.registerServlet("/fileupload", fileUploadServlet, null, commonContext);
-//        Dictionary<String, Object> fileUploadServletProperties = new Hashtable<>();
-//        fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/fileupload");
-//        context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
+        Dictionary<String, String> fileUploadServletProperties = new Hashtable<>();
+        fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/fileupload/*");
+        fileUploadServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+        context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
                 CarbonConstants.SERVER_URL, serverURL);
         fileUploadServlet.getServletConfig().getServletContext().setAttribute(
@@ -286,34 +279,28 @@ public class CarbonUIServiceComponent {
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
 
+        // Register single ServletContextHelper for /carbon path - used by both JSP servlets and static resources
         Dictionary<String, String> props = new Hashtable<>();
-        props.put("osgi.http.whiteboard.context.name", "tilesContext");
+        props.put("osgi.http.whiteboard.context.name", "carbonContext");
         props.put("osgi.http.whiteboard.context.path", "/carbon");
 
         context.registerService(ServletContextHelper.class, (ServletContextHelper) commonContext, props);
 
-        HttpContext resourceContext =
-                new CarbonSecuredHttpContext(context.getBundle(), "/web", uiResourceRegistry, registry);
-        Dictionary<String, String> resourceProps = new Hashtable<>();
-        resourceProps.put("osgi.http.whiteboard.context.name", "resourceContext");
-        resourceProps.put("osgi.http.whiteboard.context.path", "/carbon");
-        resourceProps.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/" + webContext + "/*");
-        context.registerService(ServletContextHelper.class, (ServletContextHelper) resourceContext, resourceProps);
-        Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/*");
-        properties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
-        properties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=resourceContext)");
-        properties.put("osgi.http.whiteboard.context.httpservice", true);
-
-        // Replacement for httpService.registerResources with whiteboard
-        bundleContext.registerService(String.class, "resource", properties);
+        // Register static resources using HTTP Whiteboard
+        // Replacement for httpService.registerResources("/" + webContext, "/", commonContext)
+        Dictionary<String, Object> resourceProperties = new Hashtable<>();
+        resourceProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PATTERN, "/*");
+        resourceProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_RESOURCE_PREFIX, "/");
+        resourceProperties.put("osgi.http.whiteboard.context.select", 
+                "(osgi.http.whiteboard.context.name=carbonContext)");
+        bundleContext.registerService(Object.class, new Object(), resourceProperties);
 
         adaptedJspServlet = new TilesJspServlet(context.getBundle(), uiResourceRegistry);
 
         Dictionary<String, String> carbonInitparams = new Hashtable<>();
         carbonInitparams.put("servlet.init.strictQuoteEscaping", "false");
         carbonInitparams.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/*.jsp");
-        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=tilesContext)");
+        carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
         context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
         ServletContext jspServletContext = adaptedJspServlet.getServletConfig().getServletContext();
