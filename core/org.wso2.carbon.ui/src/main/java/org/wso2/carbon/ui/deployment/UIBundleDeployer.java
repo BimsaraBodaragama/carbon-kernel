@@ -455,6 +455,17 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         }
     }
 
+    /**
+     * ServletServiceListener enables bundles to register servlets programmatically as OSGi services
+     * with Carbon-specific properties (SERVLET_URL_PATTERN, SERVLET_PARAMS, etc.).
+     * The listener picks up these servlet service registrations and registers them with HttpService.
+     * 
+     * This is an alternative to declaring servlets in component.xml files.
+     * 
+     * Note: This listener explicitly filters out:
+     * - HTTP Whiteboard servlets (handled by Whiteboard runtime)
+     * - Servlets without SERVLET_URL_PATTERN property (not intended for this mechanism)
+     */
     public class ServletServiceListener implements ServiceListener {
 
         public ServletServiceListener() {
@@ -479,18 +490,36 @@ public class UIBundleDeployer implements SynchronousBundleListener {
         }
 
         public void registerServletFromSR(ServiceReference sr, int event) {
+            // Skip HTTP Whiteboard servlets - they're handled by the Whiteboard runtime
+            // Check this BEFORE retrieving the servlet service to avoid any side effects
+            Object whiteboardPattern = sr.getProperty(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN);
+            if (whiteboardPattern != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Skipping HTTP Whiteboard servlet (pattern: " + whiteboardPattern + 
+                            "), will be handled by Whiteboard runtime");
+                }
+                return;
+            }
+
+            // Check if this servlet has the Carbon-specific URL pattern property
+            Object urlPatternObj = sr.getProperty(CarbonConstants.SERVLET_URL_PATTERN);
+            if (urlPatternObj == null || !(urlPatternObj instanceof String) || urlPatternObj.equals("")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Servlet does not have '" + CarbonConstants.SERVLET_URL_PATTERN + 
+                            "' property. Skipping Carbon servlet registration.");
+                }
+                return;
+            }
+            String urlPattern = (String) urlPatternObj;
+            
+            // Only retrieve the servlet service if we're actually going to process it
             Servlet servlet = (Servlet) bundleContext.getService(sr);
             if (servlet == null) {
                 log.error("Servlet instance cannot be null");
                 return;
             }
 
-            Object urlPatternObj = sr.getProperty(CarbonConstants.SERVLET_URL_PATTERN);
-            if (urlPatternObj == null || !(urlPatternObj instanceof String) || urlPatternObj.equals("")) {
-                log.error("URL pattern should not be null");
-                return;
-            }
-            String urlPattern = (String) urlPatternObj;
+            log.info("Registering Carbon servlet via ServletServiceListener: " + servlet.getServletInfo());
 
             Object paramsObj = sr.getProperty(CarbonConstants.SERVLET_PARAMS);
             if (paramsObj != null && !(paramsObj instanceof Dictionary)) {

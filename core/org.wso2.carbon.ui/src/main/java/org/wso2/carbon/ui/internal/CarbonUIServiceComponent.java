@@ -51,6 +51,7 @@ import org.wso2.carbon.ui.BasicAuthUIAuthenticator;
 import org.wso2.carbon.ui.CarbonProtocol;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
+import org.wso2.carbon.ui.CarbonServletContextInitializer;
 import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.DefaultCarbonAuthenticator;
@@ -86,6 +87,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextListener;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
@@ -255,10 +257,6 @@ public class CarbonUIServiceComponent {
         fileDownloadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/filedownload/*");
         fileDownloadServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
         context.registerService(Servlet.class, fileDownloadServlet, fileDownloadServletProperties);
-        fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.SERVER_URL, serverURL);
-        fileDownloadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.INDEX_PAGE_URL, indexPageURL);
 
         // Register file upload servlet using HTTP Whiteboard pattern
         Servlet fileUploadServlet;
@@ -271,10 +269,6 @@ public class CarbonUIServiceComponent {
         fileUploadServletProperties.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/fileupload/*");
         fileUploadServletProperties.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
         context.registerService(Servlet.class, fileUploadServlet, fileUploadServletProperties);
-        fileUploadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.SERVER_URL, serverURL);
-        fileUploadServlet.getServletConfig().getServletContext().setAttribute(
-                CarbonConstants.INDEX_PAGE_URL, indexPageURL);
 
         uiBundleDeployer.deploy(bundleContext, commonContext);
         context.addBundleListener(uiBundleDeployer);
@@ -303,33 +297,30 @@ public class CarbonUIServiceComponent {
         carbonInitparams.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
         context.registerService(Servlet.class, adaptedJspServlet, carbonInitparams);
 
-        ServletContext jspServletContext = adaptedJspServlet.getServletConfig().getServletContext();
+        // Determine which configuration context to use based on transport mode
+        ConfigurationContext contextToUse = isLocalTransportMode ? serverConfigContext : clientConfigContext;
+        
+        // Create and register ServletContextListener to initialize the ServletContext when it's created
+        CarbonServletContextInitializer contextInitializer = new CarbonServletContextInitializer(
+                getTomcatInstanceManager(),
+                registryService,
+                serverConfig,
+                contextToUse,
+                clientConfigContext,
+                bundleContext,
+                serverURL,
+                indexPageURL,
+                customUIDefenitions,
+                this.getClass().getClassLoader(),
+                uiBundleDeployer
+        );
+        
+        Dictionary<String, String> listenerProps = new Hashtable<>();
+        listenerProps.put("osgi.http.whiteboard.context.select", "(osgi.http.whiteboard.context.name=carbonContext)");
+        listenerProps.put("osgi.http.whiteboard.listener", "true");
+        context.registerService(ServletContextListener.class, contextInitializer, listenerProps);
 
-        jspServletContext.setAttribute(InstanceManager.class.getName(), getTomcatInstanceManager());
-        jspServletContext.setAttribute("registry", registryService);
-        jspServletContext.setAttribute(CarbonConstants.SERVER_CONFIGURATION, serverConfig);
-        jspServletContext.setAttribute(CarbonConstants.CLIENT_CONFIGURATION_CONTEXT, clientConfigContext);
-        //If the UI is running on local transport mode, then we use the server-side config context.
-        if (isLocalTransportMode) {
-            jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, serverConfigContext);
-        } else {
-            jspServletContext.setAttribute(CarbonConstants.CONFIGURATION_CONTEXT, clientConfigContext);
-        }
 
-        jspServletContext.setAttribute(CarbonConstants.BUNDLE_CLASS_LOADER,
-                                       this.getClass().getClassLoader());
-        jspServletContext.setAttribute(CarbonConstants.SERVER_URL, serverURL);
-        jspServletContext.setAttribute(CarbonConstants.INDEX_PAGE_URL, indexPageURL);
-        jspServletContext.setAttribute(CarbonConstants.UI_BUNDLE_CONTEXT, bundleContext);
-
-        // set the CustomUIDefinitions object as an attribute of servlet context, so that the Registry UI bundle
-        // can access the custom UI details within JSPs.
-        jspServletContext
-                .setAttribute(CustomUIDefenitions.CUSTOM_UI_DEFENITIONS, customUIDefenitions);
-
-        // Registering jspServletContext as a service so that UI components can use it
-        // TODO why do we need to register this again?
-        bundleContext.registerService(ServletContext.class.getName(), jspServletContext, null);
 
         //saving bundle context for future reference within CarbonUI Generation
         CarbonUIUtil.setBundleContext(context);
@@ -338,9 +329,6 @@ public class CarbonUIServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Starting web console using context : " + webContext);
         }
-
-        //read product.xml
-        readProductXML(jspServletContext, uiBundleDeployer);
     }
 
     private InstanceManager getTomcatInstanceManager() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
