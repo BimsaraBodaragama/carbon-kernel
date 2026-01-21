@@ -742,6 +742,9 @@
             <Period>15</Period>
         </ConfigSync>
     </RemoteLogging>
+    <LogMgt>
+        <TruncateToMicroseconds>false</TruncateToMicroseconds>
+    </LogMgt>
 
     <!-- Configure default management ui path for server -->
     <DefaultManagementUIPath>carbon</DefaultManagementUIPath>

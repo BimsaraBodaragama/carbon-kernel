@@ -101,6 +101,7 @@ public class CarbonUtils {
     private static final String TRANSPORT_MANAGER =
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
 	private static final String TRUE = "true";
+    public static final String LOG_MGT_TRUNCATE_TO_MICROSECONDS = "LogMgt.TruncateToMicroseconds";
 	private static Log log = LogFactory.getLog(CarbonUtils.class);
 	private static Log diagnosticLog = LogFactory.getLog("diagnostics");
     private static final int ENTITY_EXPANSION_LIMIT = 0;
@@ -125,6 +126,22 @@ public class CarbonUtils {
             enableAdminConsole = Boolean.valueOf(enableAdminConsoleProp);
         }
         return enableAdminConsole;
+    }
+
+    /**
+     * Check if microsecond truncate is enabled in log management configuration.
+     *
+     * @return true if microsecond truncate is enabled, false otherwise
+     */
+    public static boolean isMicrosecondTruncateEnabled() {
+
+        boolean truncateToMicroseconds = false;
+        String truncateToMicrosecondsProp =
+                ServerConfiguration.getInstance().getFirstProperty(LOG_MGT_TRUNCATE_TO_MICROSECONDS);
+        if (truncateToMicrosecondsProp != null) {
+            truncateToMicroseconds = Boolean.parseBoolean(truncateToMicrosecondsProp);
+        }
+        return truncateToMicroseconds;
     }
 
     /**

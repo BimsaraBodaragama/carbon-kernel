@@ -81,6 +81,10 @@ public class ServerConfiguration implements ServerConfigurationService {
 	 * Constant to be used to disable admin services.
 	 */
 	public static final String AXIS2_CONFIG_DISABLE_ADMIN_SERVICES = "Axis2Config.DisableAdminServices";
+    /**
+     * Constant to be used for properties storing whether to truncate log timestamps to microseconds.
+     */
+    public static final String LOG_MGT_TRUNCATE_TO_MICROSECONDS = "LogMgt.TruncateToMicroseconds";
 	/**
 	 * Constant to be used for properties storing the http port of the servlet
 	 * transport.

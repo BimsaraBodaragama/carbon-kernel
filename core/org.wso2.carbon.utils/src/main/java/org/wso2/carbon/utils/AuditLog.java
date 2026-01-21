@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -176,8 +177,21 @@ public class AuditLog {
             if (this.id == null) {
                 id = UUID.randomUUID().toString();
             }
+            Instant recordedAtInstant;
             if (this.recordedAt == null) {
-                recordedAt = Instant.now().toString();
+                recordedAtInstant = Instant.now();
+            } else {
+                try {
+                    recordedAtInstant = Instant.parse(this.recordedAt);
+                } catch (java.time.format.DateTimeParseException e){
+                    recordedAtInstant = Instant.now();
+                }
+            }
+            // Truncate to microseconds if enabled.
+            if (CarbonUtils.isMicrosecondTruncateEnabled()) {
+                recordedAt = recordedAtInstant.truncatedTo(ChronoUnit.MICROS).toString();
+            } else {
+                recordedAt = recordedAtInstant.toString();
             }
             if (this.impersonatorId == null) {
                 impersonatorId = MDC.get(IMPERSONATOR_ID);
