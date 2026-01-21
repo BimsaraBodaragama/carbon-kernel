@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
@@ -183,7 +184,7 @@ public class AuditLog {
             } else {
                 try {
                     recordedAtInstant = Instant.parse(this.recordedAt);
-                } catch (java.time.format.DateTimeParseException e){
+                } catch (DateTimeParseException e){
                     recordedAtInstant = Instant.now();
                 }
             }
