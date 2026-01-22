@@ -128,6 +128,19 @@ public class CarbonUtils {
     }
 
     /**
+     * Check if microsecond truncate is enabled in log management configuration.
+     *
+     * @return true if microsecond truncate is enabled, false otherwise
+     */
+    public static boolean isMicrosecondTruncateEnabled() {
+
+        String truncateToMicrosecondsProp =
+                ServerConfiguration.getInstance()
+                        .getFirstProperty(ServerConfiguration.LOG_MGT_TRUNCATE_TO_MICROSECONDS);
+        return Boolean.parseBoolean(truncateToMicrosecondsProp);
+    }
+
+    /**
      * Get the port corresponding to a particular transport
      *
      * @param configContextService The OSGi ConfigurationContextService

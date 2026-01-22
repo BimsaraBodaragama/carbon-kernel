@@ -892,6 +892,14 @@
         <EnableEncryption>{{remote_logging.encrypt_secrets}}</EnableEncryption>
     </RemoteLogging>
 
+    {% if log_mgt.audit_log.truncate_to_microseconds is defined %}
+    <LogMgt>
+        <AuditLog>
+            <TruncateToMicroseconds>{{log_mgt.audit_log.truncate_to_microseconds}}</TruncateToMicroseconds>
+        </AuditLog>
+    </LogMgt>
+    {% endif %}
+
     {% if default_management_ui.path is defined %}
     <!-- Configure default management ui path for server -->
     <DefaultManagementUIPath>{{default_management_ui.path}}</DefaultManagementUIPath>
