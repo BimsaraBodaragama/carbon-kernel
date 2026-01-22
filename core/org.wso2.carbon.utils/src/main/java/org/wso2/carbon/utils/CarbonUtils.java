@@ -134,14 +134,10 @@ public class CarbonUtils {
      */
     public static boolean isMicrosecondTruncateEnabled() {
 
-        boolean truncateToMicroseconds = false;
         String truncateToMicrosecondsProp =
                 ServerConfiguration.getInstance()
                         .getFirstProperty(ServerConfiguration.LOG_MGT_TRUNCATE_TO_MICROSECONDS);
-        if (truncateToMicrosecondsProp != null) {
-            truncateToMicroseconds = Boolean.parseBoolean(truncateToMicrosecondsProp);
-        }
-        return truncateToMicroseconds;
+        return Boolean.parseBoolean(truncateToMicrosecondsProp);
     }
 
     /**
