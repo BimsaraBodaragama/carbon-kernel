@@ -169,8 +169,6 @@ public class KeyStoreUtilTest {
             OMElement keyStoreConfigElement = KeyStoreUtil.getCustomKeyStoreConfigElement(keyStoreName, serverConfiguration);
             assertEquals(KeyStoreUtil.getCustomKeyStoreConfig(keyStoreConfigElement, configName), expectedValue);
         } catch (Exception e) {
-            System.out.println("Exception occurred: " + e.getMessage());
-            e.printStackTrace();
             fail();
         }
     }
