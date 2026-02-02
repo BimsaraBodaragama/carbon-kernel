@@ -4799,7 +4799,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug("LDAP binary attributes: " + Arrays.toString(ldapBinaryAttributes));
             }
 
-            return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
+            String normalizedAttribute = StringUtils.trimToEmpty(attributeName);
+            return Arrays.stream(ldapBinaryAttributes)
+                    .filter(StringUtils::isNotBlank)
+                    .map(StringUtils::trimToEmpty)
+                    .anyMatch(attr -> StringUtils.equalsIgnoreCase(attr, normalizedAttribute));
         }
         return false;
     }
