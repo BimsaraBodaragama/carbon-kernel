@@ -206,19 +206,19 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.service.prefs</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpg-jdk18on -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpg-jdk18on</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcutil-jdk18on</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-        </dependency>
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.bouncycastle/bcpg-jdk18on &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bcpg-jdk18on</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bcutil-jdk18on</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bcprov-jdk18on</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.registry</artifactId>
