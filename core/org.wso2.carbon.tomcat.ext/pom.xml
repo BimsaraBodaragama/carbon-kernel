@@ -36,12 +36,12 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
+            <artifactId>tomcat-servlet-api-jdk21</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

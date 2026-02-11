@@ -20,6 +20,7 @@ package org.wso2.carbon.context.internal;
 import org.apache.naming.java.javaURLContextFactory;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.BaseTest;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -30,6 +31,7 @@ import org.wso2.carbon.queuing.CarbonQueueManager;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserRealmService;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantCarbonQueueManager;
 
 import javax.naming.CompositeName;
@@ -53,6 +55,18 @@ import static org.mockito.Mockito.when;
 @Test(dependsOnGroups = {"org.wso2.carbon.context", "org.wso2.carbon.utils.base"},
         description = "CarbonContextDataHolder related test cases")
 public class CarbonContextDataHolderTest extends BaseTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void setupTestClass() {
+        // Ensure carbon.home is set before any test method runs
+        // This is critical because getInitialContext() -> initTestServerConfiguration() 
+        // -> ServerConfiguration.forceInit() -> SecretManagerInitializer.loadProperties() 
+        // requires carbon.home to be set
+        if (System.getProperty(ServerConstants.CARBON_HOME) == null) {
+            testSampleDirectory.mkdirs();
+            System.setProperty(ServerConstants.CARBON_HOME, testSampleDirectory.getAbsolutePath());
+        }
+    }
 
     @Test
     public void testCarbonContextDataHolder() throws Exception {

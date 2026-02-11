@@ -357,10 +357,10 @@ public class CustomQueryTest  extends BaseTestCase {
 
         String[] qPaths = (String[]) qResults.getContent();
 
-        assertEquals("Query result count should be 3", qPaths.length, 3);
-        assertEquals("Comment query result is invalid", qPaths[0], "/target/test/resources/rx0");
-        assertEquals("Comment query result is invalid", qPaths[1], "/target/test/resources/rx2");
-        assertEquals("Comment query result is invalid", qPaths[2], "/target/test/resources/rx1");
+        assertEquals("Query result count should be 3", 3, qPaths.length);
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx0", qPaths[0]);
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx2", qPaths[1]);
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx1", qPaths[2]);
 
         comQuery = rootSystemRegistry.newResource();
         sql = "SELECT REG_PATH_ID, REG_NAME FROM REG_RESOURCE R " +
@@ -386,8 +386,8 @@ public class CustomQueryTest  extends BaseTestCase {
         }
         qPaths = paths.toArray(new String[paths.size()]);
 
-        assertEquals("Comment query result is invalid", qPaths[0], "/target/test/resources/rx0");
-        assertEquals("Comment query result is invalid", qPaths[1], "/target/test/resources/rx2");
-        assertEquals("Comment query result is invalid", qPaths[2], "/target/test/resources/rx1");
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx0", qPaths[0]);
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx2", qPaths[1]);
+        assertEquals("Comment query result is invalid", "/target/test/resources/rx1", qPaths[2]);
     }
 }
