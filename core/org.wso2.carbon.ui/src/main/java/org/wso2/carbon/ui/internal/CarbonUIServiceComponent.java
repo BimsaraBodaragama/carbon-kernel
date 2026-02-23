@@ -83,7 +83,7 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
-
+import javax.servlet.Filter;
 @Component(name = "core.ui.dscomponent", immediate = true)
 public class CarbonUIServiceComponent {
 
