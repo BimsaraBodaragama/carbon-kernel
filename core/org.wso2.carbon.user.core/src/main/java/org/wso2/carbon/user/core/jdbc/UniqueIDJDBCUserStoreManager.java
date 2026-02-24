@@ -103,15 +103,7 @@ import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_LAST_MODI
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.GROUP_NAME_ATTRIBUTE;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.GET_DISTINCT_USER_IDS_FROM_USER_ATTRIBUTE_SQL;
 import static org.wso2.carbon.user.core.constants.UserCoreDBConstants.SQL_STATEMENT_PARAMETER_PLACEHOLDER;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_A_USER;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_ADDING_ROLE;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_ID;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_EMPTY_GROUP_NAME;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_NO_GROUP_FOUND_WITH_ID;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_SORTING_NOT_SUPPORTED;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_DATE_SEARCH_FILTER;
-import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.ERROR_UNSUPPORTED_GROUP_SEARCH_FILTER;
+import static org.wso2.carbon.user.core.constants.UserCoreErrorConstants.ErrorMessages.*;
 import static org.wso2.carbon.user.core.util.DatabaseUtil.getLoggableSqlString;
 
 public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
@@ -2914,11 +2906,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
                         // Handle multivalued attributes. Append the new value to the existing value with a separator.
                         if (multiValuedAttributes.contains(name)) {
-                            if (!largeStorageRequiredAttributes.contains(name)) {
-                                value = map.get(name) + multiAttributeSeparator + value;
-                            } else if (StringUtils.isEmpty(value)){
-                                value = map.get(name) + multiAttributeSeparator;
-                            }
+                            value = map.get(name) + multiAttributeSeparator + value;
                         }
                     }
                     map.put(name, value);
@@ -3193,7 +3181,8 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         } catch (NumberFormatException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Invalid chunk size configured for large attribute values. Defaulting to 800 characters.", e);
+                log.debug("Invalid chunk size configured for large attribute values. " +
+                        "Defaulting to 600 characters.", e);
             }
         }
         return chunkSize;
@@ -3211,7 +3200,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
         } catch (NumberFormatException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Invalid maximum attribute value length configured. Defaulting to 4000 characters.", e);
+                log.debug("Invalid maximum attribute value length configured. Defaulting to 3000 characters.", e);
             }
         }
         return maxLength;
@@ -3224,8 +3213,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         int startIndex = 0;
         int valueLength = value.length();
         if (valueLength > maxLength) {
-            throw new UserStoreClientException("The length of the attribute value exceeds the maximum " +
-                    "allowed length of " + maxLength + " characters.");
+            throw new UserStoreClientException(
+                    String.format(ERROR_CODE_ERROR_EXCEED_MAX_CLAIM_LENGTH.getMessage(), maxLength),
+                    ERROR_CODE_ERROR_EXCEED_MAX_CLAIM_LENGTH.getCode());
         }
         while (startIndex < valueLength) {
             int endIndex = Math.min(startIndex + chunkSize, valueLength);
