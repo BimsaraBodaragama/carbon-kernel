@@ -3159,7 +3159,13 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
-        } finally {
+        } catch (UserStoreClientException e) {
+            if (ERROR_CODE_ERROR_EXCEED_MAX_CLAIM_LENGTH.getCode().equals(e.getErrorCode())) {
+                DatabaseUtil.rollBack(dbConnection);
+                throw e;
+            }
+        }
+        finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
             }
